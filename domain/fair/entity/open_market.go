@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type OpenMarket struct {
 	RegistryID       string
 	Name             string
@@ -10,4 +12,6 @@ type OpenMarket struct {
 	SubCityHall      SubCityHall
 	Address          Address
 	AddressReference string
+	CreatedAt        time.Time
+	UpdatedAt        *time.Time
 }

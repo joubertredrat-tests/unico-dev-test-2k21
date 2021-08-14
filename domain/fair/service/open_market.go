@@ -22,17 +22,37 @@ func NewOpenMarketService(repository repository.OpenMarketRepository) OpenMarket
 }
 
 func (s OpenMarketService) Create(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
-	return s.repository.Create(openMarket)
+	openMarketCreated, err := s.repository.Create(openMarket)
+	if err != nil {
+		return nil, OpenMarketServiceHoustonError
+	}
+
+	return openMarketCreated, nil
 }
 
 func (s OpenMarketService) Update(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
-	return s.repository.Update(openMarket)
+	openMarketUpdated, err := s.repository.Update(openMarket)
+	if err != nil {
+		return nil, OpenMarketServiceHoustonError
+	}
+
+	return openMarketUpdated, nil
 }
 
 func (s OpenMarketService) Delete(openMarket entity.OpenMarket) error {
-	return s.repository.Delete(openMarket)
+	err := s.repository.Delete(openMarket)
+	if err != nil {
+		return OpenMarketServiceHoustonError
+	}
+
+	return nil
 }
 
 func (s OpenMarketService) GetByRegistryID(RegistryID string) (*entity.OpenMarket, error) {
-	return s.repository.GetByRegistryID(RegistryID)
+	openMarketFound, err := s.repository.GetByRegistryID(RegistryID)
+	if err != nil {
+		return nil, OpenMarketServiceHoustonError
+	}
+
+	return openMarketFound, nil
 }
