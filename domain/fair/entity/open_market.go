@@ -8,10 +8,11 @@ type OpenMarket struct {
 	Latitude         string
 	Longitude        string
 	SetCens          string
-	District         District
-	SubCityHall      SubCityHall
+	AreaP            string
 	Address          Address
 	AddressReference string
+	District         District
+	SubCityHall      SubCityHall
 	CreatedAt        time.Time
 	UpdatedAt        *time.Time
 }
