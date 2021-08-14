@@ -13,6 +13,6 @@ type OpenMarket struct {
 	AddressReference string
 	District         District
 	SubCityHall      SubCityHall
-	CreatedAt        time.Time
+	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 }
