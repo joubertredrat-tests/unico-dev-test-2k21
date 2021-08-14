@@ -16,4 +16,5 @@ type OpenMarketRepository interface {
 	Update(openMarket entity.OpenMarket) (*entity.OpenMarket, error)
 	Delete(openMarket entity.OpenMarket) error
 	GetByRegistryID(RegistryID string) (*entity.OpenMarket, error)
+	GetListByCriteria(searchCriteria entity.OpenMarketSearchCriteria) ([]*entity.OpenMarket, error)
 }

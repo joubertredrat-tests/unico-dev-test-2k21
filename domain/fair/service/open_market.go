@@ -56,3 +56,12 @@ func (s OpenMarketService) GetByRegistryID(RegistryID string) (*entity.OpenMarke
 
 	return openMarketFound, nil
 }
+
+func (s OpenMarketService) GetListByCriteria(searchCriteria entity.OpenMarketSearchCriteria) ([]*entity.OpenMarket, error) {
+	openMarketList, err := s.repository.GetListByCriteria(searchCriteria)
+	if err != nil {
+		return nil, OpenMarketServiceHoustonError
+	}
+
+	return openMarketList, nil
+}
