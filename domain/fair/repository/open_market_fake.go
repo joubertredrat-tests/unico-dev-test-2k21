@@ -28,5 +28,5 @@ func (r OpenMarketRepositoryFake) Delete(openMarket entity.OpenMarket) error {
 }
 
 func (r OpenMarketRepositoryFake) GetByRegistryID(RegistryID string) (*entity.OpenMarket, error) {
-	return r.GetByRegistryID(RegistryID)
+	return r.FakeGetByRegistryID(RegistryID)
 }
