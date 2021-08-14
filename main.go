@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/joubertredrat-tests/unico-dev-test-2k21/cmd"
+)
 
 func main() {
-	fmt.Println("hi")
+	cmd.Execute()
 }
