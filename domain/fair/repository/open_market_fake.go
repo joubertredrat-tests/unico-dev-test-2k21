@@ -7,7 +7,7 @@ import (
 type OpenMarketRepositoryFake struct {
 	FakeCreate            func(openMarket entity.OpenMarket) (*entity.OpenMarket, error)
 	FakeUpdate            func(openMarket entity.OpenMarket) (*entity.OpenMarket, error)
-	FakeDelete            func(openMarket entity.OpenMarket) error
+	FakeDelete            func(RegistryID string) error
 	FakeGetByRegistryID   func(RegistryID string) (*entity.OpenMarket, error)
 	FakeGetListByCriteria func(searchCriteria entity.OpenMarketSearchCriteria) ([]*entity.OpenMarket, error)
 }
@@ -24,8 +24,8 @@ func (r OpenMarketRepositoryFake) Update(openMarket entity.OpenMarket) (*entity.
 	return r.FakeUpdate(openMarket)
 }
 
-func (r OpenMarketRepositoryFake) Delete(openMarket entity.OpenMarket) error {
-	return r.FakeDelete(openMarket)
+func (r OpenMarketRepositoryFake) Delete(RegistryID string) error {
+	return r.FakeDelete(RegistryID)
 }
 
 func (r OpenMarketRepositoryFake) GetByRegistryID(RegistryID string) (*entity.OpenMarket, error) {

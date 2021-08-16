@@ -81,7 +81,7 @@ func TestOpenMarketServiceCreate(t *testing.T) {
 			errorExpected: nil,
 		},
 		{
-			name: "Test create open market with error on repository",
+			name: "Test create open market with unknown error on repository",
 			repository: func() repository.OpenMarketRepository {
 				repo := repository.NewOpenMarketRepositoryFake()
 				repo.FakeCreate = func(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
@@ -92,6 +92,19 @@ func TestOpenMarketServiceCreate(t *testing.T) {
 			}(),
 			openMarketExpected: nil,
 			errorExpected:      service.OpenMarketServiceHoustonError,
+		},
+		{
+			name: "Test create open market with already exists error on repository",
+			repository: func() repository.OpenMarketRepository {
+				repo := repository.NewOpenMarketRepositoryFake()
+				repo.FakeCreate = func(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
+					return nil, repository.OpenMarketRepositoryAlreadyExistError
+				}
+
+				return repo
+			}(),
+			openMarketExpected: nil,
+			errorExpected:      service.OpenMarketServiceAlreadyExistError,
 		},
 	}
 
@@ -203,7 +216,7 @@ func TestOpenMarketServiceUpdate(t *testing.T) {
 			errorExpected: nil,
 		},
 		{
-			name: "Test update open market with error on repository",
+			name: "Test update open market with unknown error on repository",
 			repository: func() repository.OpenMarketRepository {
 				repo := repository.NewOpenMarketRepositoryFake()
 				repo.FakeUpdate = func(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
@@ -214,6 +227,19 @@ func TestOpenMarketServiceUpdate(t *testing.T) {
 			}(),
 			openMarketExpected: nil,
 			errorExpected:      service.OpenMarketServiceHoustonError,
+		},
+		{
+			name: "Test update open market with not found error on repository",
+			repository: func() repository.OpenMarketRepository {
+				repo := repository.NewOpenMarketRepositoryFake()
+				repo.FakeUpdate = func(openMarket entity.OpenMarket) (*entity.OpenMarket, error) {
+					return nil, repository.OpenMarketRepositoryNotFoundError
+				}
+
+				return repo
+			}(),
+			openMarketExpected: nil,
+			errorExpected:      service.OpenMarketServiceNotFoundError,
 		},
 	}
 
@@ -263,7 +289,7 @@ func TestOpenMarketServiceDelete(t *testing.T) {
 			name: "Test delete open market with success",
 			repository: func() repository.OpenMarketRepository {
 				repo := repository.NewOpenMarketRepositoryFake()
-				repo.FakeDelete = func(openMarket entity.OpenMarket) error {
+				repo.FakeDelete = func(RegistryID string) error {
 					return nil
 				}
 
@@ -272,10 +298,22 @@ func TestOpenMarketServiceDelete(t *testing.T) {
 			errorExpected: nil,
 		},
 		{
-			name: "Test delete open market with error on repository",
+			name: "Test delete open market with open market not found error on repository",
 			repository: func() repository.OpenMarketRepository {
 				repo := repository.NewOpenMarketRepositoryFake()
-				repo.FakeDelete = func(openMarket entity.OpenMarket) error {
+				repo.FakeDelete = func(RegistryID string) error {
+					return repository.OpenMarketRepositoryNotFoundError
+				}
+
+				return repo
+			}(),
+			errorExpected: service.OpenMarketServiceNotFoundError,
+		},
+		{
+			name: "Test delete open market with unknown error on repository",
+			repository: func() repository.OpenMarketRepository {
+				repo := repository.NewOpenMarketRepositoryFake()
+				repo.FakeDelete = func(RegistryID string) error {
 					return repository.OpenMarketRepositoryHoustonError
 				}
 
@@ -288,32 +326,7 @@ func TestOpenMarketServiceDelete(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			openMarketService := service.NewOpenMarketService(test.repository)
-
-			errGot := openMarketService.Delete(entity.OpenMarket{
-				RegistryID: "4041-0",
-				Name:       "VILA FORMOSA",
-				Latitude:   "-23558733",
-				Longitude:  "-46550164",
-				SetCens:    "355030885000091",
-				AreaP:      "3550308005040",
-				Address: entity.Address{
-					Street:       "RUA MARAGOJIPE",
-					Number:       "S/N",
-					Neighborhood: "VL FORMOSA",
-				},
-				AddressReference: "TV RUA PRETORIA",
-				District: entity.District{
-					Code: "87",
-					Name: "VILA FORMOSA",
-				},
-				SubCityHall: entity.SubCityHall{
-					Code:    "26",
-					Name:    "ARICANDUVA-FORMOSA-CARRAO",
-					Region5: "Leste",
-					Region8: "Leste 1",
-				},
-				CreatedAt: getDateMock("2021-08-14T11:15:05-0300"),
-			})
+			errGot := openMarketService.Delete("4041-0")
 
 			assert.Equal(t, test.errorExpected, errGot)
 		})
@@ -391,7 +404,20 @@ func TestOpenMarketServiceGetByRegistryID(t *testing.T) {
 			errorExpected: nil,
 		},
 		{
-			name: "Test get open market by registry id with error on repository",
+			name: "Test get open market by registry id with open market not found error on repository",
+			repository: func() repository.OpenMarketRepository {
+				repo := repository.NewOpenMarketRepositoryFake()
+				repo.FakeGetByRegistryID = func(RegistryID string) (*entity.OpenMarket, error) {
+					return nil, repository.OpenMarketRepositoryNotFoundError
+				}
+
+				return repo
+			}(),
+			openMarketExpected: nil,
+			errorExpected:      service.OpenMarketServiceNotFoundError,
+		},
+		{
+			name: "Test get open market by registry id with unknown error on repository",
 			repository: func() repository.OpenMarketRepository {
 				repo := repository.NewOpenMarketRepositoryFake()
 				repo.FakeGetByRegistryID = func(RegistryID string) (*entity.OpenMarket, error) {
