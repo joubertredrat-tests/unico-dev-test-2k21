@@ -20,8 +20,7 @@ func Execute() {
 				Aliases: []string{},
 				Usage:   "Start listen http API",
 				Action: func(c *cli.Context) error {
-					api.Run()
-					return nil
+					return api.Run()
 				},
 			},
 			{
@@ -32,14 +31,13 @@ func Execute() {
 					&cli.StringFlag{
 						Name:     "filename",
 						Aliases:  []string{},
-						Value:    "",
 						Usage:    "Filename path to import open market list",
+						Value:    "",
 						Required: true,
 					},
 				},
 				Action: func(c *cli.Context) error {
-					worker.Run(c.String("filename"))
-					return nil
+					return worker.Run(c.String("filename"))
 				},
 			},
 		},
