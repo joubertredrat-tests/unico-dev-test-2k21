@@ -1,9 +1,17 @@
 package api
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+	domainService "github.com/joubertredrat-tests/unico-dev-test-2k21/domain/fair/service"
+	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/domain/fair/repository"
+	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/mysql"
 )
 
 type Controller struct {
@@ -34,12 +42,49 @@ func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
-	response := struct {
-		Message string `json:"message"`
-	}{
-		Message: "Create",
+	var request OpenMarketCreateRequest
+	if err := ctx.ShouldBindBodyWith(&request, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint(err)})
+		return
 	}
 
+	if err := validator.New().Struct(request); err != nil {
+		errors := []string{}
+		for _, fieldErr := range err.(validator.ValidationErrors) {
+			errors = append(errors, fmt.Sprint(fieldErr))
+
+		}
+		ctx.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+		return
+	}
+
+	openMarket := createOpenMarketFromCreateRequest(request)
+	db, err := mysql.NewMysqlConnection(
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DBNAME"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
+	openMarketCreated, err := openMarketService.Create(openMarket)
+	if err != nil {
+		if errors.Is(err, domainService.OpenMarketServiceAlreadyExistError) {
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Sprint(err)})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
+	response := createResponseFromOpenMarket(*openMarketCreated)
 	ctx.JSON(http.StatusCreated, response)
 }
 
