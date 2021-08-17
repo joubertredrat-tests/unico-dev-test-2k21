@@ -89,12 +89,39 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
-	response := struct {
-		Message string `json:"message"`
-	}{
-		Message: "Get",
+	registryID := ctx.Param("id")
+	if registryID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
+		return
 	}
 
+	db, err := mysql.NewMysqlConnection(
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DBNAME"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
+	openMarketFound, err := openMarketService.GetByRegistryID(registryID)
+	if err != nil {
+		if errors.Is(err, domainService.OpenMarketServiceNotFoundError) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprint(err)})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+	fmt.Println("aaaaa", openMarketFound)
+	fmt.Println("err", err)
+	response := createResponseFromOpenMarket(*openMarketFound)
 	ctx.JSON(http.StatusOK, response)
 }
 

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -99,7 +100,66 @@ func (r OpenMarketRepositoryMysql) Delete(RegistryID string) error {
 }
 
 func (r OpenMarketRepositoryMysql) GetByRegistryID(RegistryID string) (*domainEntity.OpenMarket, error) {
-	return nil, nil
+	query := `SELECT
+		name,
+		latitude,
+		longitude,
+		set_cens,
+		area_p,
+		address_street,
+		address_number,
+		address_neighborhood,
+		address_reference,
+		district_code,
+		district_name,
+		sub_city_hall_code,
+		sub_city_hall_name,
+		sub_city_hall_region5,
+		sub_city_hall_region8,
+		created_at,
+		updated_at
+	FROM open_markets WHERE registry_id = ?`
+	row := r.db.QueryRow(query, RegistryID)
+
+	var openMarket domainEntity.OpenMarket
+	var address domainEntity.Address
+	var district domainEntity.District
+	var subCityHall domainEntity.SubCityHall
+
+	err := row.Scan(
+		&openMarket.Name,
+		&openMarket.Latitude,
+		&openMarket.Longitude,
+		&openMarket.SetCens,
+		&openMarket.AreaP,
+		&address.Street,
+		&address.Number,
+		&address.Neighborhood,
+		&openMarket.AddressReference,
+		&district.Code,
+		&district.Name,
+		&subCityHall.Code,
+		&subCityHall.Name,
+		&subCityHall.Region5,
+		&subCityHall.Region8,
+		&openMarket.CreatedAt,
+		&openMarket.UpdatedAt,
+	)
+
+	openMarket.RegistryID = RegistryID
+	openMarket.Address = address
+	openMarket.District = district
+	openMarket.SubCityHall = subCityHall
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domainRepository.OpenMarketRepositoryNotFoundError
+		}
+
+		return nil, err
+	}
+
+	return &openMarket, nil
 }
 
 func (r OpenMarketRepositoryMysql) GetListByCriteria(searchCriteria domainEntity.OpenMarketSearchCriteria) ([]*domainEntity.OpenMarket, error) {

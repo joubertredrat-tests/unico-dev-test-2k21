@@ -8,7 +8,7 @@ import (
 )
 
 func NewMysqlConnection(host, port, dbName, user, password string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbName))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, dbName))
 	if err != nil {
 		return nil, err
 	}
