@@ -158,6 +158,29 @@ func (r OpenMarketRepositoryMysql) Update(openMarket domainEntity.OpenMarket) (*
 }
 
 func (r OpenMarketRepositoryMysql) Delete(RegistryID string) error {
+	stmt, err := r.db.Prepare("DELETE FROM open_markets WHERE registry_id = ?")
+	if err != nil {
+		return err
+	}
+
+	res, err := stmt.Exec(RegistryID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return domainRepository.OpenMarketRepositoryNotFoundError
+	}
+
+	if rowsAffected > 1 {
+		return domainRepository.OpenMarketRepositoryHoustonError
+	}
+
 	return nil
 }
 

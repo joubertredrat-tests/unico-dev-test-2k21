@@ -169,11 +169,36 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
-	response := struct {
-		Message string `json:"message"`
-	}{
-		Message: "Delete",
+	registryID := ctx.Param("id")
+	if registryID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
+		return
 	}
 
-	ctx.JSON(http.StatusNoContent, response)
+	db, err := mysql.NewMysqlConnection(
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DBNAME"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
+
+	if err := openMarketService.Delete(registryID); err != nil {
+		if errors.Is(err, domainService.OpenMarketServiceNotFoundError) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprint(err)})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, struct{}{})
 }
