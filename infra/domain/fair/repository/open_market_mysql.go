@@ -92,7 +92,69 @@ func (r OpenMarketRepositoryMysql) Create(openMarket domainEntity.OpenMarket) (*
 }
 
 func (r OpenMarketRepositoryMysql) Update(openMarket domainEntity.OpenMarket) (*domainEntity.OpenMarket, error) {
-	return nil, nil
+	query := `UPDATE open_markets SET
+		name = ?,
+		latitude = ?,
+		longitude = ?,
+		set_cens = ?,
+		area_p = ?,
+		address_street = ?,
+		address_number = ?,
+		address_neighborhood = ?,
+		address_reference = ?,
+		district_code = ?,
+		district_name = ?,
+		sub_city_hall_code = ?,
+		sub_city_hall_name = ?,
+		sub_city_hall_region5 = ?,
+		sub_city_hall_region8 = ?,
+		updated_at = ?
+	WHERE registry_id = ?`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedAt := time.Now()
+	openMarket.UpdatedAt = &updatedAt
+
+	res, err := stmt.Exec(
+		openMarket.Name,
+		openMarket.Latitude,
+		openMarket.Longitude,
+		openMarket.SetCens,
+		openMarket.AreaP,
+		openMarket.Address.Street,
+		openMarket.Address.Number,
+		openMarket.Address.Neighborhood,
+		openMarket.AddressReference,
+		openMarket.District.Code,
+		openMarket.District.Name,
+		openMarket.SubCityHall.Code,
+		openMarket.SubCityHall.Name,
+		openMarket.SubCityHall.Region5,
+		openMarket.SubCityHall.Region8,
+		openMarket.UpdatedAt.Format("2006-01-02 15:04:05"),
+		openMarket.RegistryID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if rowsAffected == 0 {
+		return nil, domainRepository.OpenMarketRepositoryNotFoundError
+	}
+
+	if rowsAffected > 1 {
+		return nil, domainRepository.OpenMarketRepositoryHoustonError
+	}
+
+	return &openMarket, nil
 }
 
 func (r OpenMarketRepositoryMysql) Delete(RegistryID string) error {

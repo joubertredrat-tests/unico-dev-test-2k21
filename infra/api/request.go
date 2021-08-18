@@ -29,9 +29,9 @@ type OpenMarketUpdateRequest struct {
 	AddressNumber       string `json:"address_number"`
 	AddressNeighborhood string `json:"address_neighborhood"`
 	AddressReference    string `json:"address_reference"`
-	DistrictCode        string `json:"district_code"`
+	DistrictCode        uint64 `json:"district_code"`
 	DistrictName        string `json:"district_name"`
-	SubCityHallCode     string `json:"sub_city_hall_code"`
+	SubCityHallCode     uint64 `json:"sub_city_hall_code"`
 	SubCityHallName     string `json:"sub_city_hall_name"`
 	SubCityHallRegion5  string `json:"sub_city_hall_region5"`
 	SubCityHallRegion8  string `json:"sub_city_hall_region8"`

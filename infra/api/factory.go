@@ -33,6 +33,32 @@ func createOpenMarketFromCreateRequest(request OpenMarketCreateRequest) domainEn
 	}
 }
 
+func createOpenMarketFromUpdateRequest(request OpenMarketUpdateRequest) domainEntity.OpenMarket {
+	return domainEntity.OpenMarket{
+		Name:      request.Name,
+		Latitude:  request.Latitude,
+		Longitude: request.Longitude,
+		SetCens:   request.SetCens,
+		AreaP:     request.AreaP,
+		Address: domainEntity.Address{
+			Street:       request.AddressStreet,
+			Number:       request.AddressNumber,
+			Neighborhood: request.AddressNeighborhood,
+		},
+		AddressReference: request.AddressReference,
+		District: domainEntity.District{
+			Code: strconv.FormatUint(request.DistrictCode, 10),
+			Name: request.DistrictName,
+		},
+		SubCityHall: domainEntity.SubCityHall{
+			Code:    strconv.FormatUint(request.SubCityHallCode, 10),
+			Name:    request.SubCityHallName,
+			Region5: request.SubCityHallRegion5,
+			Region8: request.SubCityHallRegion8,
+		},
+	}
+}
+
 func createResponseFromOpenMarket(openMarket domainEntity.OpenMarket) OpenMarketResponse {
 	return OpenMarketResponse{
 		RegistryID: openMarket.RegistryID,
@@ -65,7 +91,7 @@ func createResponseFromOpenMarket(openMarket domainEntity.OpenMarket) OpenMarket
 			Region8 string `json:"region8"`
 		}{
 			Code:    openMarket.SubCityHall.Code,
-			Name:    openMarket.SubCityHall.Code,
+			Name:    openMarket.SubCityHall.Name,
 			Region5: openMarket.SubCityHall.Region5,
 			Region8: openMarket.SubCityHall.Region8,
 		},
