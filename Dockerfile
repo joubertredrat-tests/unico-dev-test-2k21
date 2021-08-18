@@ -1,5 +1,7 @@
 FROM golang:1.16-alpine
 
+RUN apk add gcc g++ make
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
