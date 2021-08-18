@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -15,6 +16,9 @@ func Run() error {
 
 	controller := NewController()
 	router := gin.Default()
+
+	router.Use(cors.Default())
+
 	api := router.Group("/api")
 	api.GET("/health", controller.handleHealth)
 	api.GET("/open-markets", controller.handleListOpenMarket)

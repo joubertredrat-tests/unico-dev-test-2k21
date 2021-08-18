@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  api.unico.dev:
+    platform: linux/amd64
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    # depends_on:
+    #   - db.unico.dev
+    environment:
+      API_LISTEN_PORT: 7179
+      APP_LOG_FILENAME: app.log
+      DB_HOST: db.unico.dev
+      DB_PORT: 3306
+      DB_DBNAME: api
+      DB_USER: root
+      DB_PASSWORD: ac39afe4-b45d-4eef-9960-bae5d0606c4e
+    networks:
+      - unico_network_local
+    ports:
+      - 7179:7179
+  db.unico.dev:
+    platform: linux/amd64
+    image: mariadb:10.5
+    environment:
+      MYSQL_ROOT_PASSWORD: ac39afe4-b45d-4eef-9960-bae5d0606c4e
+    volumes:
+      - unico_db_data:/var/lib/mysql
+    networks:
+      - unico_network_local
+    ports:
+      - 23306:3306
+  pma.unico.dev:
+    platform: linux/amd64
+    image: phpmyadmin/phpmyadmin:5
+    depends_on:
+      - db.unico.dev
+    environment:
+      PMA_HOST: db.unico.dev
+      PMA_USER: root
+      PMA_PASSWORD: ac39afe4-b45d-4eef-9960-bae5d0606c4e
+    networks:
+      - unico_network_local
+    ports:
+      - 23307:80
+  swagger-ui.unico.dev:
+    platform: linux/amd64
+    image: swaggerapi/swagger-ui
+    environment:
+      SWAGGER_JSON: /swagger.json
+    volumes:
+      - ./docs/swagger.json:/swagger.json
+    networks:
+      - unico_network_local
+    ports:
+      - 28082:8080
+
+volumes:
+  unico_db_data:
+
+networks:
+  unico_network_local:
+    driver: bridge

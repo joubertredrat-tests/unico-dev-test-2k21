@@ -1,0 +1,301 @@
+swagger: "2.0"
+info:
+  description: "This is an API for unico dev test"
+  version: "1.0.0"
+  title: "Unico Dev Test"
+  contact:
+    email: "eu+github@redrat.com.br"
+  license:
+    name: "MIT"
+    url: "https://github.com/joubertredrat-tests/unico-dev-test-2k21/blob/master/license"
+host: "api.unico.dev:7179"
+basePath: "/api"
+tags:
+- name: "Operations"
+  description: "API operations routes"
+- name: "Open markets"
+  description: "Everything about open markets in São Paulo"
+schemes:
+- "http"
+paths:
+  /health:
+    get:
+      tags:
+      - "Operations"
+      summary: "Health check route"
+      description: ""
+      operationId: "handleHealth"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+  /open-markets:
+    get:
+      tags:
+      - "Open markets"
+      summary: "List open markets by search criteria"
+      description: ""
+      operationId: "handleListOpenMarket"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "Open market name that need to be considered for filter"
+        required: false
+        type: "string"
+      - name: "address_neighborhood"
+        in: "query"
+        description: "Address neighborhood of open market name that need to be considered for filter"
+        required: false
+        type: "string"
+      - name: "district_name"
+        in: "query"
+        description: "District name of open market name that need to be considered for filter"
+        required: false
+        type: "string"
+      - name: "sub_city_hall_region5"
+        in: "query"
+        description: "Sub city hall region5 of open market name that need to be considered for filter"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/OpenMarketResponse"
+        "500":
+          description: "Internal server error"
+    post:
+      tags:
+      - "Open markets"
+      summary: "Create new open market"
+      description: ""
+      operationId: "handleCreateOpenMarket"
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Open market"
+        required: true
+        schema:
+          $ref: "#/definitions/OpenMarketCreate"
+      responses:
+        "201":
+          description: "Created"
+        "500":
+          description: "Internal server error"
+  /open-markets/{registryId}:
+    get:
+      tags:
+      - "Open markets"
+      summary: "Get open market by registry id"
+      description: ""
+      operationId: "handleGetOpenMarket"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "registryId"
+        in: "path"
+        description: "Registry ID of open market"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/OpenMarketResponse"
+        "404":
+          description: "Not found"
+        "500":
+          description: "Internal server error"
+    patch:
+      tags:
+      - "Open markets"
+      summary: "Update open market by registry id"
+      description: ""
+      operationId: "handleUpdateOpenMarket"
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "registryId"
+        in: "path"
+        description: "Registry ID of open market"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Open market"
+        schema:
+          $ref: "#/definitions/OpenMarketUpdate"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/OpenMarketResponse"
+        "404":
+          description: "Not found"
+        "500":
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Open markets"
+      summary: "Delete open market by registry id"
+      description: ""
+      operationId: "handleDeleteOpenMarket"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "registryId"
+        in: "path"
+        description: "Registry ID of open market"
+        required: true
+        type: "string"
+      responses:
+        "204":
+          description: "No Content"
+        "404":
+          description: "Not found"
+        "500":
+          description: "Internal server error"
+definitions:
+  OpenMarketCreate:
+    type: "object"
+    properties:
+      registry_id:
+        type: "string"
+      name:
+        type: "string"
+      latitude:
+        type: "string"
+      longitude:
+        type: "string"
+      set_cens:
+        type: "string"
+      area_p:
+        type: "string"
+      address_street:
+        type: "string"
+      address_number:
+        type: "string"
+      address_neighborhood:
+        type: "string"
+      address_reference:
+        type: "string"
+      district_code:
+        type: "integer"
+      district_name:
+        type: "string"
+      sub_city_hall_code:
+        type: "integer"
+      sub_city_hall_name:
+        type: "string"
+      sub_city_hall_region5:
+        type: "string"
+      sub_city_hall_region8:
+        type: "string"
+  OpenMarketUpdate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      latitude:
+        type: "string"
+      longitude:
+        type: "string"
+      set_cens:
+        type: "string"
+      area_p:
+        type: "string"
+      address_street:
+        type: "string"
+      address_number:
+        type: "string"
+      address_neighborhood:
+        type: "string"
+      address_reference:
+        type: "string"
+      district_code:
+        type: "integer"
+      district_name:
+        type: "string"
+      sub_city_hall_code:
+        type: "integer"
+      sub_city_hall_name:
+        type: "string"
+      sub_city_hall_region5:
+        type: "string"
+      sub_city_hall_region8:
+        type: "string"
+  OpenMarketResponse:
+    type: "object"
+    properties:
+      registry_id:
+        type: "string"
+      name:
+        type: "string"
+      latitude:
+        type: "string"
+      longitude:
+        type: "string"
+      set_cens:
+        type: "string"
+      area_p:
+        type: "string"
+      address:
+        $ref: "#/definitions/Address"
+      address_reference:
+        type: "string"
+      district:
+        $ref: "#/definitions/District"
+      sub_city_hall:
+        $ref: "#/definitions/SubCityHall"
+      created_at:
+        type: "string"
+        format: "date-time"
+      updated_at:
+        type: "string"
+        format: "date-time"
+  Address:
+    type: "object"
+    properties:
+      street:
+        type: "string"
+      number:
+        type: "string"
+      neighborhood:
+        type: "string"
+  District:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+      name:
+        type: "string"
+  SubCityHall:
+    type: "object"
+    properties:
+      code:
+        type: "string"
+      name:
+        type: "string"
+      region5:
+        type: "string"
+      region8:
+        type: "string"
+  HealthResponse:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+        default: "Hi, you are you today?"
