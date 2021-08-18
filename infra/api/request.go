@@ -1,5 +1,12 @@
 package api
 
+type OpenMarketListSearchCriteria struct {
+	DistrictName        string `form:"district_name"`
+	SubCityHallRegion5  string `form:"sub_city_hall_region5"`
+	OpenMarketName      string `form:"name"`
+	AddressNeighborhood string `form:"address_neighborhood"`
+}
+
 type OpenMarketCreateRequest struct {
 	RegistryID          string `json:"registry_id" validate:"required"`
 	Name                string `json:"name" validate:"required"`

@@ -6,6 +6,15 @@ import (
 	domainEntity "github.com/joubertredrat-tests/unico-dev-test-2k21/domain/fair/entity"
 )
 
+func createOpenMarkeSearchCriteriatFromListRequest(request OpenMarketListSearchCriteria) domainEntity.OpenMarketSearchCriteria {
+	return domainEntity.OpenMarketSearchCriteria{
+		DistrictName:        request.DistrictName,
+		SubCityHallRegion5:  request.SubCityHallRegion5,
+		OpenMarketName:      request.OpenMarketName,
+		AddressNeighborhood: request.AddressNeighborhood,
+	}
+}
+
 func createOpenMarketFromCreateRequest(request OpenMarketCreateRequest) domainEntity.OpenMarket {
 	return domainEntity.OpenMarket{
 		RegistryID: request.RegistryID,
@@ -98,4 +107,14 @@ func createResponseFromOpenMarket(openMarket domainEntity.OpenMarket) OpenMarket
 		CreatedAt: openMarket.CreatedAt,
 		UpdatedAt: openMarket.UpdatedAt,
 	}
+}
+
+func createResponseFromOpenMarketList(openMarketList []*domainEntity.OpenMarket) []OpenMarketResponse {
+	var openMarketResponse []OpenMarketResponse
+
+	for _, openMarket := range openMarketList {
+		openMarketResponse = append(openMarketResponse, createResponseFromOpenMarket(*openMarket))
+	}
+
+	return openMarketResponse
 }

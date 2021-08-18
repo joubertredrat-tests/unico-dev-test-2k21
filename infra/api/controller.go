@@ -32,12 +32,28 @@ func (c *Controller) handleHealth(ctx *gin.Context) {
 }
 
 func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
-	response := struct {
-		Message string `json:"message"`
-	}{
-		Message: "List",
+	var request OpenMarketListSearchCriteria
+	ctx.ShouldBindQuery(&request)
+
+	db, err := mysql.NewMysqlConnection(
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DBNAME"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
 	}
 
+	searchCriteria := createOpenMarkeSearchCriteriatFromListRequest(request)
+
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
+	openMarketList, _ := openMarketService.GetListByCriteria(searchCriteria)
+
+	response := createResponseFromOpenMarketList(openMarketList)
 	ctx.JSON(http.StatusOK, response)
 }
 
