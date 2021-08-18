@@ -83,10 +83,9 @@ func (r OpenMarketRepositoryMysql) Create(openMarket domainEntity.OpenMarket) (*
 
 	id, err := res.LastInsertId()
 	if err != nil {
+		fmt.Println("Insert id", id)
 		return nil, err
 	}
-
-	fmt.Println("Insert id", id)
 
 	return &openMarket, nil
 }
