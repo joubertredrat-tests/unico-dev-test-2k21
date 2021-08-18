@@ -10,4 +10,4 @@ COPY . .
 
 RUN touch .env
 
-CMD go run main.go api
+ENTRYPOINT [ "/bin/sh", "/app/entrypoint.sh" ]

@@ -37,7 +37,7 @@ func Execute() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					return worker.Run(c.String("filename"))
+					return worker.RunImport(c.String("filename"))
 				},
 			},
 		},

@@ -13,7 +13,7 @@ import (
 	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/mysql"
 )
 
-func Run(filename string) error {
+func RunImport(filename string) error {
 	if err := godotenv.Load(); err != nil {
 		return err
 	}
@@ -49,6 +49,11 @@ func Run(filename string) error {
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 	)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 

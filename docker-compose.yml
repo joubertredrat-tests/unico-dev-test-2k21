@@ -6,8 +6,9 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    # depends_on:
-    #   - db.unico.dev
+    depends_on:
+      db.unico.dev:
+        condition: service_healthy
     environment:
       API_LISTEN_PORT: 7179
       APP_LOG_FILENAME: app.log
@@ -25,17 +26,24 @@ services:
     image: mariadb:10.5
     environment:
       MYSQL_ROOT_PASSWORD: ac39afe4-b45d-4eef-9960-bae5d0606c4e
+      MYSQL_DATABASE: api
     volumes:
       - unico_db_data:/var/lib/mysql
+      - "./schema.sql:/docker-entrypoint-initdb.d/1.sql"
     networks:
       - unico_network_local
     ports:
       - 23306:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
   pma.unico.dev:
     platform: linux/amd64
     image: phpmyadmin/phpmyadmin:5
     depends_on:
-      - db.unico.dev
+      db.unico.dev:
+        condition: service_healthy
     environment:
       PMA_HOST: db.unico.dev
       PMA_USER: root
