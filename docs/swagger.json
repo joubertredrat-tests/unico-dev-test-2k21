@@ -12,7 +12,7 @@
         "url": "https://github.com/joubertredrat-tests/unico-dev-test-2k21/blob/master/license"
       }
     },
-    "host": "api.unico.dev:7179",
+    "host": "localhost:7179",
     "basePath": "/api",
     "tags": [
       {
