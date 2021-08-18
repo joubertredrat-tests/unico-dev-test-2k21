@@ -24,18 +24,21 @@ func Run(filename string) error {
 	}
 
 	if !fileExists(filename) {
-		return errors.New(fmt.Sprintf("File %s does not exist", filename))
+		err := errors.New(fmt.Sprintf("File %s does not exist", filename))
+		log.Println(err)
+		return err
 	}
 
 	csvFile, err := os.Open(filename)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer csvFile.Close()
 
 	csvLines, err := csv.NewReader(csvFile).ReadAll()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 

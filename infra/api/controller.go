@@ -26,7 +26,7 @@ func (c *Controller) handleHealth(ctx *gin.Context) {
 	response := struct {
 		Message string `json:"message"`
 	}{
-		Message: "Hi, you are you?",
+		Message: "Hi, you are you today?",
 	}
 
 	ctx.JSON(http.StatusOK, response)
@@ -50,6 +50,7 @@ func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
 		os.Getenv("DB_PASSWORD"),
 	)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -73,6 +74,7 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 
 	var request OpenMarketCreateRequest
 	if err := ctx.ShouldBindBodyWith(&request, binding.JSON); err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -83,6 +85,7 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 			errors = append(errors, fmt.Sprint(fieldErr))
 
 		}
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"errors": errors})
 		return
 	}
@@ -96,6 +99,7 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 		os.Getenv("DB_PASSWORD"),
 	)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -104,6 +108,7 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketCreated, err := openMarketService.Create(openMarket)
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, domainService.OpenMarketServiceAlreadyExistError) {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": fmt.Sprint(err)})
 			return
@@ -126,6 +131,7 @@ func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
 
 	registryID := ctx.Param("id")
 	if registryID == "" {
+		log.Println(gin.H{"error": "registry id required"})
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
 		return
 	}
@@ -138,6 +144,7 @@ func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
 		os.Getenv("DB_PASSWORD"),
 	)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -146,6 +153,7 @@ func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketFound, err := openMarketService.GetByRegistryID(registryID)
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, domainService.OpenMarketServiceNotFoundError) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprint(err)})
 			return
@@ -168,12 +176,14 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 
 	registryID := ctx.Param("id")
 	if registryID == "" {
+		log.Println(gin.H{"error": "registry id required"})
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
 		return
 	}
 
 	var request OpenMarketUpdateRequest
 	if err := ctx.ShouldBindBodyWith(&request, binding.JSON); err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -188,6 +198,7 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 		os.Getenv("DB_PASSWORD"),
 	)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -196,6 +207,7 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketUpdated, err := openMarketService.Update(openMarket)
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, domainService.OpenMarketServiceNotFoundError) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprint(err)})
 			return
@@ -218,6 +230,7 @@ func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
 
 	registryID := ctx.Param("id")
 	if registryID == "" {
+		log.Println(gin.H{"error": "registry id required"})
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
 		return
 	}
@@ -230,6 +243,7 @@ func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
 		os.Getenv("DB_PASSWORD"),
 	)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
 		return
 	}
@@ -238,6 +252,7 @@ func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 
 	if err := openMarketService.Delete(registryID); err != nil {
+		log.Println(err)
 		if errors.Is(err, domainService.OpenMarketServiceNotFoundError) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprint(err)})
 			return
