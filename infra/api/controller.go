@@ -11,6 +11,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	domainService "github.com/joubertredrat-tests/unico-dev-test-2k21/domain/fair/service"
 	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/domain/fair/repository"
+	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/log"
 	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/mysql"
 )
 
@@ -32,6 +33,12 @@ func (c *Controller) handleHealth(ctx *gin.Context) {
 }
 
 func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
 	var request OpenMarketListSearchCriteria
 	ctx.ShouldBindQuery(&request)
 
@@ -49,7 +56,7 @@ func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
 
 	searchCriteria := createOpenMarkeSearchCriteriatFromListRequest(request)
 
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketList, _ := openMarketService.GetListByCriteria(searchCriteria)
 
@@ -58,6 +65,12 @@ func (c *Controller) handleListOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
 	var request OpenMarketCreateRequest
 	if err := ctx.ShouldBindBodyWith(&request, binding.JSON); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprint(err)})
@@ -87,7 +100,7 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 		return
 	}
 
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketCreated, err := openMarketService.Create(openMarket)
 	if err != nil {
@@ -105,6 +118,12 @@ func (c *Controller) handleCreateOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
 	registryID := ctx.Param("id")
 	if registryID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
@@ -123,7 +142,7 @@ func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
 		return
 	}
 
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketFound, err := openMarketService.GetByRegistryID(registryID)
 	if err != nil {
@@ -141,6 +160,12 @@ func (c *Controller) handleGetOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
 	registryID := ctx.Param("id")
 	if registryID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
@@ -167,7 +192,7 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 		return
 	}
 
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 	openMarketUpdated, err := openMarketService.Update(openMarket)
 	if err != nil {
@@ -185,6 +210,12 @@ func (c *Controller) handleUpdateOpenMarket(ctx *gin.Context) {
 }
 
 func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprint(err)})
+		return
+	}
+
 	registryID := ctx.Param("id")
 	if registryID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "registry id required"})
@@ -203,7 +234,7 @@ func (c *Controller) handleDeleteOpenMarket(ctx *gin.Context) {
 		return
 	}
 
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 
 	if err := openMarketService.Delete(registryID); err != nil {

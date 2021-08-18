@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -14,12 +15,14 @@ import (
 )
 
 type OpenMarketRepositoryMysql struct {
-	db *sql.DB
+	db  *sql.DB
+	log *log.Logger
 }
 
-func NewOpenMarketRepositoryMysql(db *sql.DB) OpenMarketRepositoryMysql {
+func NewOpenMarketRepositoryMysql(db *sql.DB, log *log.Logger) OpenMarketRepositoryMysql {
 	return OpenMarketRepositoryMysql{
-		db: db,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -45,13 +48,14 @@ func (r OpenMarketRepositoryMysql) Create(openMarket domainEntity.OpenMarket) (*
 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
+		r.log.Println(err)
 		return nil, err
 	}
 
 	createdAt := time.Now()
 	openMarket.CreatedAt = &createdAt
 
-	res, err := stmt.Exec(
+	_, errExec := stmt.Exec(
 		openMarket.RegistryID,
 		openMarket.Name,
 		openMarket.Latitude,
@@ -70,22 +74,17 @@ func (r OpenMarketRepositoryMysql) Create(openMarket domainEntity.OpenMarket) (*
 		openMarket.SubCityHall.Region8,
 		openMarket.CreatedAt.Format("2006-01-02 15:04:05"),
 	)
-	if err != nil {
+	if errExec != nil {
+		r.log.Println(errExec)
 		me, ok := err.(*mysql.MySQLError)
 		if !ok {
-			return nil, err
+			return nil, errExec
 		}
 		if me.Number == 1062 {
 			return nil, domainRepository.OpenMarketRepositoryAlreadyExistError
 		}
 
-		return nil, err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		fmt.Println("Insert id", id)
-		return nil, err
+		return nil, errExec
 	}
 
 	return &openMarket, nil
@@ -112,6 +111,7 @@ func (r OpenMarketRepositoryMysql) Update(openMarket domainEntity.OpenMarket) (*
 	WHERE registry_id = ?`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
+		r.log.Println(err)
 		return nil, err
 	}
 
@@ -138,11 +138,13 @@ func (r OpenMarketRepositoryMysql) Update(openMarket domainEntity.OpenMarket) (*
 		openMarket.RegistryID,
 	)
 	if err != nil {
+		r.log.Println(err)
 		return nil, err
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
+		r.log.Println(err)
 		return nil, err
 	}
 
@@ -160,16 +162,19 @@ func (r OpenMarketRepositoryMysql) Update(openMarket domainEntity.OpenMarket) (*
 func (r OpenMarketRepositoryMysql) Delete(RegistryID string) error {
 	stmt, err := r.db.Prepare("DELETE FROM open_markets WHERE registry_id = ?")
 	if err != nil {
+		r.log.Println(err)
 		return err
 	}
 
 	res, err := stmt.Exec(RegistryID)
 	if err != nil {
+		r.log.Println(err)
 		return err
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
+		r.log.Println(err)
 		return err
 	}
 
@@ -237,6 +242,7 @@ func (r OpenMarketRepositoryMysql) GetByRegistryID(RegistryID string) (*domainEn
 	openMarket.SubCityHall = subCityHall
 
 	if err != nil {
+		r.log.Println(err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domainRepository.OpenMarketRepositoryNotFoundError
 		}
@@ -297,6 +303,7 @@ func (r OpenMarketRepositoryMysql) GetListByCriteria(searchCriteria domainEntity
 	FROM open_markets%s`, where)
 	rows, err := r.db.Query(query)
 	if err != nil {
+		r.log.Println(err)
 		return nil, err
 	}
 	defer rows.Close()

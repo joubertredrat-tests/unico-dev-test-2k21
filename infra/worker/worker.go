@@ -9,11 +9,17 @@ import (
 	"github.com/joho/godotenv"
 	domainService "github.com/joubertredrat-tests/unico-dev-test-2k21/domain/fair/service"
 	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/domain/fair/repository"
+	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/log"
 	"github.com/joubertredrat-tests/unico-dev-test-2k21/infra/mysql"
 )
 
 func Run(filename string) error {
 	if err := godotenv.Load(); err != nil {
+		return err
+	}
+
+	log, err := log.NewLogFile(os.Getenv("APP_LOG_FILENAME"))
+	if err != nil {
 		return err
 	}
 
@@ -40,7 +46,7 @@ func Run(filename string) error {
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 	)
-	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db)
+	openMarketRepositoryMysql := repository.NewOpenMarketRepositoryMysql(db, log)
 	openMarketService := domainService.NewOpenMarketService(openMarketRepositoryMysql)
 
 	fmt.Printf("Start importing open markets from %s\n", filename)
