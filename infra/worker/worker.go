@@ -47,6 +47,7 @@ func Run(filename string) error {
 
 	countSuccess := 0
 	countError := 0
+	csvLines = csvLines[1:]
 	for _, line := range csvLines {
 		openMarket := createOpenMarketFromCSVLine(line)
 		_, err := openMarketService.Create(openMarket)

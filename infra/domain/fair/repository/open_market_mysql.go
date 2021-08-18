@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -248,27 +249,27 @@ func (r OpenMarketRepositoryMysql) GetByRegistryID(RegistryID string) (*domainEn
 
 func (r OpenMarketRepositoryMysql) GetListByCriteria(searchCriteria domainEntity.OpenMarketSearchCriteria) ([]*domainEntity.OpenMarket, error) {
 	getWhereCriteria := func(searchCriteria domainEntity.OpenMarketSearchCriteria) string {
-		// where := []string{}
+		where := []string{}
 
-		// if searchCriteria.DistrictName != "" {
-		// 	where = append(where, fmt.Sprintf(`district_name LIKE "%%s%"`, searchCriteria.DistrictName))
-		// }
+		if searchCriteria.DistrictName != "" {
+			where = append(where, fmt.Sprintf(`district_name REGEXP "%s"`, searchCriteria.DistrictName))
+		}
 
-		// if searchCriteria.SubCityHallRegion5 != "" {
-		// 	where = append(where, fmt.Sprintf(`sub_city_hall_region5 LIKE "%%"`, searchCriteria.SubCityHallRegion5))
-		// }
+		if searchCriteria.SubCityHallRegion5 != "" {
+			where = append(where, fmt.Sprintf(`sub_city_hall_region5 REGEXP "%s"`, searchCriteria.SubCityHallRegion5))
+		}
 
-		// if searchCriteria.OpenMarketName != "" {
-		// 	where = append(where, fmt.Sprintf(`name LIKE "%%"`, searchCriteria.OpenMarketName))
-		// }
+		if searchCriteria.OpenMarketName != "" {
+			where = append(where, fmt.Sprintf(`name REGEXP "%s"`, searchCriteria.OpenMarketName))
+		}
 
-		// if searchCriteria.AddressNeighborhood != "" {
-		// 	where = append(where, fmt.Sprintf(`address_neighborhood LIKE "%%"`, searchCriteria.AddressNeighborhood))
-		// }
+		if searchCriteria.AddressNeighborhood != "" {
+			where = append(where, fmt.Sprintf(`address_neighborhood REGEXP "%s"`, searchCriteria.AddressNeighborhood))
+		}
 
-		// if len(where) > 0 {
-		// 	return fmt.Sprintf(" WHERE %s", strings.Join(where, " AND "))
-		// }
+		if len(where) > 0 {
+			return fmt.Sprintf(" WHERE %s", strings.Join(where, " AND "))
+		}
 
 		return ""
 	}
